@@ -1,7 +1,5 @@
 . .\SqlVariables.ps1
 
-# Load one of the MBCT Libraries
-Add-Type  -Path "C:\Users\keegan.johnson\Desktop\Misc Work\VisualCode\MBCT\MBCT.Studio.dll" 
 
 
 ### phase 01: STUDIO LOOKUP
