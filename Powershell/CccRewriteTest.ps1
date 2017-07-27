@@ -1,6 +1,9 @@
 . .\SqlVariables.ps1
 
-
+## Structure
+#  functions
+#  variables
+#  gui
 
 ### phase 01: STUDIO LOOKUP
 ### Take user input for source CID (site ID), dbShort, and server. Validate.
