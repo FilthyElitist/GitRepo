@@ -1,5 +1,3 @@
-
-
 function Test-Function
     {
         PARAM ($siteID)
@@ -7,12 +5,10 @@ function Test-Function
     }
 
 
-
-
 Add-Type -AssemblyName System.Windows.Forms
 
 $Form = New-Object system.Windows.Forms.Form
-$Form.Text = "Form"
+$Form.Text = "Posh CCC"
 $Form.TopMost = $true
 $Form.Width = 600
 $Form.Height = 350
@@ -67,3 +63,5 @@ $Form.controls.Add($userGoButton)
 
 [void]$Form.ShowDialog()
 $Form.Dispose()
+
+Test-Function $userSourceIdBox.Text
