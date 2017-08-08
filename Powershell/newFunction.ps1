@@ -1,5 +1,3 @@
-
-
 function Test-FindMbStudio
 {
         Param
@@ -22,8 +20,6 @@ If an error occurs looking up the studio ID, $null is returned.
 
 .PARAMETER StudioID
 The studio ID to look up.
-
-
 #>
 
 function Find-MBStudio
@@ -54,9 +50,14 @@ It has no meaningful error handling :)
 The SQL statement to be run
 #>
 
-function RunSql-Source {
-    param([string] $sqlCommand = $(throw "Please specify a query"))
+function Run-SqlSource {
+    param(
+        [string] $sqlCommand = $(throw "Please specify a query"),
+        [switch] $test
+        )
+    if($test) {Write-Host "Invoke-Sqlcmd -query $($sqlCommand) -ServerInstance $sqlServer -Database $sqlDatabase"}
+    else { 
     Add-Content $logFile -Value $sqlCommand
-    $output = Invoke-Sqlcmd -query $sqlCommand -ServerInstance $sqlServerSource -Database $sqlDatabaseSource
-    return $output 
+    $output = Invoke-Sqlcmd -query $sqlCommand -ServerInstance $sqlServer -Database $sqlDatabase
+    return $output }
 }

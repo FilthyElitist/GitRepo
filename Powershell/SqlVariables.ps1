@@ -1,5 +1,3 @@
-# Used to test
-$testVar1 = "this is a test"
 
 # Used so backups are named correctly
 $dateVar = $((Get-Date).ToString("MMddyyyy"))
@@ -38,23 +36,23 @@ INNER JOIN [_ConversionDatawork].[PROD\keegan.johnson].[$($srcCid)_Ccc_SrcClient
     on tblCcNumbers.ClientID = s.ClientID
 "@
 
-$checkSourceEncryptedCc = @"
-select count(ID) as Count from tblCCNumbers 
-where (CreditCardno is not null or ACHAccountNum is not null)
-"@
-
-$checkSourceEncryptedPw = @"
+$findEncryptedPw = @"
 select count(passwordenc) as Count from clients 
 where passwordenc is not null
 "@
 
-$decryptionCheckPW = @"
+$findEncryptedCc = @"
+select count(ID) as Count from tblCCNumbers 
+where (CreditCardno is not null or ACHAccountNum is not null)
+"@
+
+$checkDecryptedPW = @"
 select top 10 passwordenc from clients
 where passwordenc is not null order by PasswordEnc desc
 go
 "@
 
-$decryptionCheckCC = @"
+$checkDecryptedCC = @"
 select top 10 right(creditcardno,4) from tblccnumbers 
 where isnumeric(creditcardno)=0 and creditcardno is not null
 "@
@@ -113,3 +111,4 @@ $rawr = @"
   ~~~~~~~~da flim flam krew~~~~~~~~
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 "@
+ 
