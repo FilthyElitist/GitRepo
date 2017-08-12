@@ -55,7 +55,7 @@ function Run-SqlSource {
         [string] $sqlCommand = $(throw "Please specify a query"),
         [switch] $test
         )
-    if($test) {Write-Host "Invoke-Sqlcmd -query $($sqlCommand) -ServerInstance $sqlServer -Database $sqlDatabase"}
+    if($test) {Write-Host " $($sqlCommand) "}
     else { 
     Add-Content $logFile -Value $sqlCommand
     $output = Invoke-Sqlcmd -query $sqlCommand -ServerInstance $sqlServer -Database $sqlDatabase

@@ -1,19 +1,19 @@
 
 # Used so backups are named correctly
 $dateVar = $((Get-Date).ToString("MMddyyyy"))
+[int]$overlapUpdateNum = 0
 
 # Create backup of clients table
-# Will use $useCID which is toggled when moving between sites
 $clientsBak = @"
 SELECT *
-INTO [_ConversionDatawork]..[$($useCID)_CccBAK_Clients_$($dateVar)]
+INTO [_ConversionDatawork]..[@xxyyxx_ClientsBAK_CCC_$($dateVar)]
 FROM dbo.CLIENTS
 "@
 
 # Create backup of tblCcnumbers
 $tblCcNumbersBak = @"
 SELECT *
-INTO [_ConversionDatawork]..[$($useCID)_CccBAK_CcNumbers_$($dateVar)]
+INTO [_ConversionDatawork]..[@xxyyxx_tblCcNumbersBAK_CCC_$($dateVar)]
 FROM dbo.tblCcNumbers
 "@
 
@@ -22,7 +22,7 @@ FROM dbo.tblCcNumbers
 # $whereClause needs to start with AND; otherwise will be ""
 $srcClientsTable = @"
 SELECT *
-INTO [_ConversionDatawork].[PROD\keegan.johnson].[$($srcCid)_Ccc_SrcClients_$($dateVar)]
+INTO [_ConversionDatawork].[PROD\keegan.johnson].[@xxyyxx_SrcClients_$($dateVar)]
 FROM CLIENTS
 WHERE clientId NOT IN (-2,0,1,98765)
 $($whereClause)
@@ -30,9 +30,9 @@ $($whereClause)
 
 $srcCcNumbersTable = @"
 SELECT tblCcNumbers.*
-INTO [_ConversionDatawork].[PROD\keegan.johnson].[$($srcCid)_Ccc_SRCtblCCNumbers_$($dateVar)]
+INTO [_ConversionDatawork].[PROD\keegan.johnson].[@xxyyxx_SRCtblCCNumbers_$($dateVar)]
 FROM tblCcNumbers
-INNER JOIN [_ConversionDatawork].[PROD\keegan.johnson].[$($srcCid)_Ccc_SrcClients_$($dateVar)] s
+INNER JOIN [_ConversionDatawork].[PROD\keegan.johnson].[@xxyyxx_SrcClients_$($dateVar)] s
     on tblCcNumbers.ClientID = s.ClientID
 "@
 
@@ -58,8 +58,8 @@ where isnumeric(creditcardno)=0 and creditcardno is not null
 "@
 
 $overlapQuery = @"
-select count(clientid) from $($srcClientsTable) 
-where clientID + $overlapUpdateNum in (select clientid from Clients)
+select count(clientid) from [_ConversionDatawork].[PROD\keegan.johnson].[@xxyyxx_SrcClients_$($dateVar)]
+where clientID + @xykk in (select clientid from Clients)
 "@
 
 $updateSourceClientsString = @"

@@ -15,7 +15,6 @@ $Form.Height = 550
 # Create Tabs
 $tabControl = New-object System.Windows.Forms.tabControl
 $tabPageOne = New-Object System.Windows.Forms.TabPage
-# $tabPageTwo = New-Object System.Windows.Forms.TabPage
 $tabPageThree = New-Object System.Windows.Forms.TabPage
 $tabPageFour = New-Object System.Windows.Forms.TabPage
 
@@ -27,33 +26,14 @@ $tabControl.Height = 480
 $tabControl.Location = New-Object System.Drawing.Point(20,25)
 $tabControl.Name = "tabControl"
 $form.Controls.Add($tabControl)
-<## Make tabs active/inactive
-$TabSizeMode = New-object System.Windows.Forms.TabSizeMode
-$TabSizeMode = "Fixed"
-$TabControl.SizeMode =$TabSizeMode
-$TabControl.ItemSize = New-Object System.Drawing.Size(0,1)
-$TabAppearance = New-object System.Windows.Forms.TabAppearance
-$TabAppearance = "Buttons"
-$TabControl.Appearance = $TabAppearance
-$tabPageOne.BackColor = "White"
-$tabPageTwo.BackColor = "Red"
-#>
+
 # Tab One
 $tabPageOne.DataBindings.DefaultDataSourceUpdateMode = 0
 $tabPageOne.UseVisualStyleBackColor = $True
 $tabPageOne.Name = "tabPageOne"
 $tabPageOne.Text = "Step One: Prepare"
 $tabPageOne.TabIndex = 1
-$tabPageFour.Enabled = $false
 $tabControl.Controls.Add($tabPageOne)
-
-<# Tab Two
-$tabPageTwo.DataBindings.DefaultDataSourceUpdateMode = 0
-$tabPageTwo.UseVisualStyleBackColor = $true
-$tabPageTwo.Name = "tabPageTwo"
-$tabPageTwo.Text = "Step Two: Choose Options"
-$tabPageTwo.TabIndex = 2
-$tabControl.Controls.Add($tabPageTwo)#>
 
 # Tab Three
 $tabPageThree.DataBindings.DefaultDataSourceUpdateMode = 0
@@ -83,7 +63,6 @@ $srcCIDBox = New-Object System.Windows.Forms.TextBox
 $srcCIDBox.Width = 200
 $srcCIDBox.Height = 40
 $srcCIDBox.Location = New-Object System.Drawing.Point(15,30)
-$srcCID = $($srcCIDBox.Text)
 $tabPageOne.Controls.Add($srcCIDBox)
 
 # use Label to show status/relevant info. Good for troubleshooting
@@ -105,24 +84,26 @@ $goButton.Width = 100
 $goButton.Height = 30
 $goButton.location = new-object system.drawing.point(250,30)
 $goButton.Add_Click({
+        $srcCid = $srcCIDBox.Text 
         $srcCidLabel.Visible = $true
-        $srcCID = $($srcCIDBox.Text)
+        write-host "updated src: " $srcCid
         Test-FindMbStudio $srcCIDBox.Text
         $srcCidLabel.Text += $($srcCIDBox.Text) + "`n" `
                                 + "Found db short: " + $rs.StudioShort + "`n" `
                                 + "Found db path: " + $rs.dbPath + "`n" `
                                 + "Valid site: "  
         if ($rs.dbPath -eq $null) {$srcCidLabel.Text += "no"} else {$srcCidLabel.Text=+ "yes"}
+        return $srcCid
 })
 $tabPageOne.controls.Add($goButton)
 
 # BUILD TARGET LOOKUP
 # Find target site's ID
-$targetCID = New-Object System.Windows.Forms.TextBox
-$targetCID.Width = 200
-$targetCID.Height = 40
-$targetCID.Location = New-Object System.Drawing.Point(15,160)
-$tabPageOne.Controls.Add($targetCID)
+$targetCidBox = New-Object System.Windows.Forms.TextBox
+$targetCidBox.Width = 200
+$targetCidBox.Height = 40
+$targetCidBox.Location = New-Object System.Drawing.Point(15,160)
+$tabPageOne.Controls.Add($targetCidBox)
 
 # use Label to show status/relevant info. Good for troubleshooting
 $targetCidLabel = New-Object System.Windows.Forms.Label
@@ -144,8 +125,8 @@ $goButtonTgt.Height = 30
 $goButtonTgt.location = new-object system.drawing.point(250,160)
 $goButtonTgt.Add_Click({
         $targetCidLabel.Visible = $true
-        Test-FindMbStudio $targetCID.Text
-        $targetCidLabel.Text += $($targetCid.Text) + "`n" `
+        Test-FindMbStudio $targetCidBox.Text
+        $targetCidLabel.Text += $($targetCidBox.Text) + "`n" `
                                 + "Found db short: " + $rs.StudioShort + "`n" `
                                 + "Found db path: " + $rs.dbPath + "`n" `
                                 + "Valid site: "  
@@ -158,7 +139,6 @@ $tabPageOne.controls.Add($goButtonTgt)
 ########### TAB THREE ##############
 ##################################
 
-
 $backupSourceButton = New-Object system.windows.Forms.Button
 $backupSourceButton.DataBindings.DefaultDataSourceUpdateMode = 0
 $backupSourceButton.Text = "Create Backups"
@@ -167,8 +147,8 @@ $backupSourceButton.Width = 200
 $backupSourceButton.Height = 70
 $backupSourceButton.location = new-object system.drawing.point(85,30)
 $backupSourceButton.Add_Click({
-        Run-SqlSource $clientsBak -test
-        Run-SqlSource $tblCcNumbersBak -test
+        Run-SqlSource $clientsBak.Replace("@xxyyxx", $srcCIDBox.Text) -test
+        Run-SqlSource $tblCcNumbersBak.Replace("@xxyyxx", $srcCIDBox.Text) -test
         $backupSourceButton.Text = "Backups Created"
         $backupSourceButton.Enabled = $false
         $createSourceButton.Enabled = $true
@@ -185,12 +165,57 @@ $createSourceButton.Width = 200
 $createSourceButton.Height = 70
 $createSourceButton.location = new-object system.drawing.point(85,230)
 $createSourceButton.Add_Click({
-        Run-SqlSource $srcClientsTable -test
-        Run-SqlSource $srcCcNumbersTable -test
+        Run-SqlSource $srcClientsTable.Replace("@xxyyxx", $srcCIDBox.Text) -test
+        Run-SqlSource $srcCcNumbersTable.Replace("@xxyyxx", $srcCIDBox.Text) -test
         $createSourceButton.Text = "Source Tables Created"
         $createSourceButton.Enabled = $false
 })
 $tabPageThree.controls.Add($createSourceButton)
+
+##################################
+########### TAB FOUR  ##############
+##################################
+
+$backupTargetButton = New-Object system.windows.Forms.Button
+$backupTargetButton.DataBindings.DefaultDataSourceUpdateMode = 0
+$backupTargetButton.Text = "Create Backups"
+$backupTargetButton.UseVisualStyleBackColor = $true
+$backupTargetButton.Width = 200
+$backupTargetButton.Height = 70
+$backupTargetButton.location = new-object system.drawing.point(85,30)
+$backupTargetButton.Add_Click({
+        Run-SqlSource $clientsBak.Replace("@xxyyxx", $targetCidBox.Text) -test
+        Run-SqlSource $tblCcNumbersBak.Replace("@xxyyxx", $targetCidBox.Text) -test
+        $backupTargetButton.Text = "Backups Created"
+        $backupTargetButton.Enabled = $false
+        $prepareTargetButton.Enabled = $true
+        #$createSourceButton.Enabled = $true
+})
+$tabPageFour.controls.Add($backupTargetButton)
+
+$prepareTargetButton = New-Object system.windows.Forms.Button
+$prepareTargetButton.DataBindings.DefaultDataSourceUpdateMode = 0
+$prepareTargetButton.Text = "Update IDs to avoid overlap ja feel"
+$prepareTargetButton.UseVisualStyleBackColor = $true
+$prepareTargetButton.Width = 200
+$prepareTargetButton.Height = 70
+$prepareTargetButton.location = new-object system.drawing.point(85,230)
+$prepareTargetButton.Add_Click({
+        Run-SqlSource $overlapQuery.Replace("@xxyyxx", $srcCIDBox.Text).Replace("@xykk", $overlapUpdateNum) -test
+
+        $overlapCount = (Run-SqlSource $overlapQuery.Replace("@xxyyxx", $srcCIDBox.Text).Replace("@xykk", $overlapUpdateNum) -test).Column1
+        write-host "overlap: " $overlapCount
+        $overlapCount = 500 #test
+        while ($overlapCount -gt 0)
+        {
+            $overlapUpdateNum = [int]$overlapUpdateNum + 50000
+            $overlapCount = (Run-SqlSource $overlapQuery.Replace("@xxyyxx", $srcCIDBox.Text).Replace("@xykk", $overlapUpdateNum) -test).Column1
+            write-host "overlap: " $overlapCount
+        }
+        $prepareTargetButton.Text = "Prepared"
+        $prepareTargetButton.Enabled = $false
+})
+$tabPageFour.controls.Add($prepareTargetButton)
 
 [void]$Form.ShowDialog()
 $Form.Dispose()
